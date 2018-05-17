@@ -16,7 +16,10 @@ void SearchTreeDestroy(SearchNode* root);
 void SearchTreeDestroy2(SearchNode** pRoot);
 
 //向搜索树中插入元素
-SearchNode* CreateSearchNode(SearchNodeType value);
+void SearchTreeInsert(SearchNode** pRoot,SearchNodeType to_insert);
 
 //递归的方式查找元素
 SearchNode* SearchTreeFind(SearchNode* root,SearchNodeType to_find);
+
+//按值来删除元素（递归的方式）
+void SearchTreeRemove(SearchNode** pRoot,SearchNodeType to_remove);
