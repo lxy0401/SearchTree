@@ -21,5 +21,5 @@ void SearchTreeInsert(SearchNode** pRoot,SearchNodeType to_insert);
 //递归的方式查找元素
 SearchNode* SearchTreeFind(SearchNode* root,SearchNodeType to_find);
 
-//按值来删除元素（递归的方式）
+//按值来删除元素
 void SearchTreeRemove(SearchNode** pRoot,SearchNodeType to_remove);
