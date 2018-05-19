@@ -95,7 +95,7 @@ SearchNode* CreateSearchNode(SearchNodeType value)
     return new_node;
 }
 
-#if 0 //递归的方式实现搜索二叉树的插入、查找、删除
+#if 1 //递归的方式实现搜索二叉树的插入、查找、删除
 //向搜索树中插入元素
 void SearchTreeInsert(SearchNode** pRoot,SearchNodeType to_insert)
 {
@@ -230,7 +230,7 @@ void SearchTreeRemove(SearchNode** pRoot,SearchNodeType to_remove)
 #endif
 
 
-#if 1 //非递归的方式实现搜索二叉树的插入、查找、删除
+#if 0 //非递归的方式实现搜索二叉树的插入、查找、删除
 //向搜索树中插入元素
 void SearchTreeInsert(SearchNode** pRoot,SearchNodeType to_insert)
 {
@@ -285,7 +285,7 @@ void SearchTreeInsert(SearchNode** pRoot,SearchNodeType to_insert)
     }
     else
     {
-        pre->lchild = new_node;
+        pre->rchild = new_node;
     }
     return ;
 }
@@ -317,15 +317,141 @@ SearchNode* SearchTreeFind(SearchNode* root,SearchNodeType to_find)
             //空树
             break ;
         }
-        return cur;
     }
+   return cur;
 }
 
 //按值来删除元素
 void SearchTreeRemove(SearchNode** pRoot,SearchNodeType to_remove)
 {
-
+    if(pRoot == NULL)
+    {
+        return ;
+    }
+    if(*pRoot == NULL)
+    {
+        return ;
+    }
+    //1.找要删除的节点是谁
+    SearchNode* to_remove_node = *pRoot;
+    SearchNode* parent = NULL;
+    while(1)
+    {
+        if(to_remove_node == NULL)
+        {
+            //没找到
+            return ;
+        }
+        if(to_remove < to_remove_node->data)
+        {
+            parent = to_remove_node;
+            to_remove_node = to_remove_node->lchild;
+        }
+        else if(to_remove > to_remove_node->data)
+        {
+            parent = to_remove_node;
+            to_remove_node = to_remove_node->rchild;
+        }
+        else
+        {
+            //相等，找到了要删除的元素
+            break ;
+        }
+    }
+    //2.若找到了元素，分下面情况讨论
+    //此时要判定要删除的点是否为根节点
+    if(to_remove_node == *pRoot)
+    {
+        //要删除元素是根节点，此时parent = NULL
+        *pRoot = NULL;
+        DestroySearchNode(to_remove_node);
+    }
+    else
+    {
+        if(to_remove_node->lchild == NULL && to_remove_node->rchild == NULL)
+        {
+            //没有子树
+            //要判断当前节点是parent的左子树还是右子树
+            if(to_remove_node->data < parent->data)
+            {
+                parent->lchild = NULL;
+            }
+            else
+            {
+                parent->rchild = NULL;
+            }
+            DestroySearchNode(to_remove_node);
+            return ;
+        }
+        else if(to_remove_node->lchild != NULL && to_remove_node->rchild == NULL)
+        {
+            //只有右子树
+            if(to_remove_node == *pRoot)
+            {
+                *pRoot = to_remove_node->lchild;
+            }
+            else
+            {
+                if(to_remove_node->data < parent->data)
+                {
+                    parent->lchild = to_remove_node->lchild;
+                }
+                else
+                {
+                    parent->rchild = to_remove_node->lchild;
+                }
+            }
+            DestroySearchNode(to_remove_node);
+            return ;
+        }
+        else if(to_remove_node->lchild == NULL && to_remove_node->rchild == NULL)
+        {
+            if(to_remove_node = *pRoot)
+            {
+                *pRoot = to_remove_node->rchild;
+            }
+            else
+            {
+                if(to_remove_node->data < parent->data)
+                {
+                    parent->lchild = to_remove_node->rchild;
+                }
+                else
+                {
+                    parent->rchild = to_remove_node->rchild;
+                }
+            }
+            DestroySearchNode(to_remove_node);
+            return ;
+        }
+        else
+        {
+            SearchNode* min = to_remove_node->rchild;
+            SearchNode* min_parent = to_remove_node;
+            while(min->lchild != NULL)
+            {
+                min_parent = min;
+                min = min->lchild;
+            }
+            //循环结束后，min指向了 to_remove_node 右子树的最小值
+            to_remove_node->data = min->data;
+            if(min->data < min_parent->data)
+            {
+                //min是min_parent的左子树，min一定没有左子树
+                min_parent->lchild = min->rchild;
+            }
+            else
+            {
+                //通常这种情况下min是 min_parent 的左子树，但是初始情况下例外
+                min_parent->rchild = min->rchild;
+            }
+            DestroySearchNode(min);
+            return;
+        }
+        return;
+    }
 }
+
 
 #endif
 /*****
@@ -382,11 +508,27 @@ void TestFind()
     SearchNode* result = SearchTreeFind(root,'c');
     printf("result->data expected c,actuall %c\n",result->data);
 }
+
+void TestRemove()
+{
+    TEST_HEADER;
+    SearchNode* root;
+    SearchTreeInit(&root);
+    SearchTreeInsert(&root,'a');
+    SearchTreeInsert(&root,'e');
+    SearchTreeInsert(&root,'c');
+    SearchTreeInsert(&root,'d');
+    SearchTreeInsert(&root,'b');
+    SearchTreeRemove(&root,'d');
+    SearchTreePrintChar(root,"删除元素d");
+
+}
 int main()
 {
     TestInit();
     TestInsert();
     TestFind();
+    TestRemove();
     return 0;
 }
 
